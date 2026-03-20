@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PID Control & Tuning â Motion Control Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+
+  <style>
+    :root {
+      --primary: #1a3a5c;
+      --accent: #2e7dd1;
+      --accent-light: #4fa3e8;
+      --bg: #f8f9fc;
+      --card-bg: #ffffff;
+      --text: #1e2433;
+      --text-muted: #5a6478;
+      --border: #e0e6f0;
+      --code-bg: #0d1117;
+      --tag-bg: #e8f0fb;
+      --tag-color: #2e7dd1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+    /* NAV */
+    nav { background: var(--primary); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 62px; }
+    .nav-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+    .nav-logo .logo-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; }
+    .nav-logo span { color: #fff; font-weight: 600; font-size: 1rem; }
+    .nav-back { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.88rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+    .nav-back:hover { color: #fff; }
+
+    /* HERO */
+    .page-hero { background: linear-gradient(135deg, var(--primary) 0%, #0f2440 100%); color: #fff; padding: 3.5rem 2rem 3rem; }
+    .page-hero-inner { max-width: 860px; margin: 0 auto; }
+    .breadcrumb { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem; }
+    .breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .breadcrumb a:hover { color: #fff; }
+    .status-badge { display: inline-block; background: rgba(45,164,78,0.25); border: 1px solid rgba(45,164,78,0.5); color: #7ee89c; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.2rem 0.7rem; border-radius: 100px; margin-bottom: 0.9rem; }
+    .page-hero h1 { font-family: 'Merriweather', serif; font-size: 2.2rem; line-height: 1.25; margin-bottom: 0.8rem; }
+    .page-hero p { color: rgba(255,255,255,0.72); font-size: 1rem; max-width: 600px; }
+    .hero-meta { display: flex; gap: 1.5rem; margin-top: 1.8rem; flex-wrap: wrap; }
+    .meta-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.83rem; color: rgba(255,255,255,0.55); }
+    .meta-item i { color: var(--accent-light); }
+    .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.2rem; }
+    .h-tag { background: rgba(46,125,209,0.25); color: var(--accent-light); border: 1px solid rgba(79,163,232,0.3); font-size: 0.74rem; font-weight: 600; padding: 0.2rem 0.65rem; border-radius: 4px; }
+
+    /* LAYOUT */
+    .page-layout { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; display: grid; grid-template-columns: 1fr 260px; gap: 2.5rem; align-items: start; }
+    @media (max-width: 900px) { .page-layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+    /* CONTENT */
+    .content-block { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 2.2rem 2.4rem; margin-bottom: 2rem; }
+    .content-block h2 { font-family: 'Merriweather', serif; font-size: 1.35rem; color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.7rem; border-bottom: 2px solid var(--tag-bg); display: flex; align-items: center; gap: 0.6rem; }
+    .content-block h2 i { color: var(--accent); font-size: 0.95rem; }
+    .content-block h3 { font-size: 1rem; font-weight: 700; color: var(--primary); margin: 1.4rem 0 0.5rem; }
+    .content-block p { color: var(--text-muted); font-size: 0.93rem; margin-bottom: 0.8rem; line-height: 1.75; }
+    .content-block ul { padding-left: 1.3rem; color: var(--text-muted); font-size: 0.92rem; }
+    .content-block ul li { margin-bottom: 0.4rem; line-height: 1.65; }
+
+    /* MATH */
+    .math-box { background: #f0f4fa; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.2rem 1.5rem; margin: 1.2rem 0; overflow-x: auto; }
+
+    /* ALGORITHM STEPS */
+    .algo-steps { counter-reset: step; list-style: none; padding: 0; margin: 1rem 0; }
+    .algo-steps li { counter-increment: step; display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 0.85rem; font-size: 0.92rem; color: var(--text-muted); }
+    .algo-steps li::before { content: counter(step); min-width: 26px; height: 26px; background: var(--accent); color: #fff; border-radius: 50%; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+    /* TABLE */
+    .param-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1rem 0; }
+    .param-table th { background: var(--primary); color: #fff; padding: 0.7rem 1rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    .param-table td { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    .param-table tr:last-child td { border-bottom: none; }
+    .param-table tr:nth-child(even) td { background: #f8f9fc; }
+
+    /* CODE WINDOW */
+    .code-window { background: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; margin: 1.2rem 0; }
+    .code-topbar { background: #21262d; padding: 0.75rem 1.1rem; display: flex; align-items: center; gap: 0.8rem; border-bottom: 1px solid #30363d; }
+    .dots { display: flex; gap: 5px; }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+    .code-tabs { display: flex; gap: 0.2rem; }
+    .ctab { font-size: 0.76rem; color: rgba(255,255,255,0.4); padding: 0.22rem 0.8rem; border-radius: 5px; cursor: pointer; font-family: 'JetBrains Mono', monospace; transition: all 0.18s; }
+    .ctab.active { background: #2d333b; color: #c9d1d9; }
+    pre.code-content { padding: 1.5rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.78; color: #c9d1d9; }
+    .kw { color: #ff7b72; } .fn { color: #d2a8ff; } .str { color: #a5d6ff; }
+    .num { color: #79c0ff; } .cmt { color: #8b949e; font-style: italic; } .cls { color: #ffa657; }
+
+    /* CALLOUT */
+    .callout { display: flex; gap: 0.9rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 1rem 1.2rem; margin: 1rem 0; font-size: 0.88rem; color: #1e3a5f; }
+    .callout i { color: var(--accent); margin-top: 2px; flex-shrink: 0; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 82px; }
+    .sidebar-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; margin-bottom: 1.2rem; }
+    .sidebar-card h4 { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 1rem; }
+    .toc-link { display: block; font-size: 0.85rem; color: var(--text-muted); text-decoration: none; padding: 0.3rem 0; border-left: 2px solid transparent; padding-left: 0.7rem; transition: all 0.18s; }
+    .toc-link:hover, .toc-link.active { color: var(--accent); border-color: var(--accent); }
+    .resource-link { display: flex; align-items: center; gap: 0.5rem; font-size: 0.84rem; color: var(--accent); text-decoration: none; padding: 0.4rem 0; transition: opacity 0.2s; }
+    .resource-link:hover { opacity: 0.75; }
+    .tag { font-size: 0.72rem; font-weight: 600; background: var(--tag-bg); color: var(--tag-color); padding: 0.18rem 0.55rem; border-radius: 4px; }
+    .sidebar-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .gh-btn { display: flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.65rem; background: var(--primary); color: #fff; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: background 0.2s; }
+    .gh-btn:hover { background: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">
+      <div class="logo-icon"><i class="fa fa-robot"></i></div>
+      <span>Motion Control Lab</span>
+    </a>
+    <a class="nav-back" href="../index.html"><i class="fa fa-arrow-left"></i> Back to Projects</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a> <i class="fa fa-chevron-right" style="font-size:0.6rem"></i>
+      <a href="../index.html#projects">Projects</a> <i class="fa fa-chevron-right" style="font-size:0.6rem"></i>
+      PID Control & Tuning
+    </div>
+    <div class="status-badge"><i class="fa fa-circle" style="font-size:0.5rem"></i> Active</div>
+    <h1>PID Control &amp; Tuning</h1>
+    <p>A complete treatment of PID controllers â from continuous-time theory to discrete implementation, anti-windup, and systematic tuning methods.</p>
+    <div class="hero-meta">
+      <span class="meta-item"><i class="fab fa-python"></i> Python 3.10+</span>
+      <span class="meta-item"><i class="fa fa-code-branch"></i> v1.2.0</span>
+      <span class="meta-item"><i class="fa fa-calendar"></i> Updated 2025</span>
+      <span class="meta-item"><i class="fa fa-star"></i> Classical Control</span>
+    </div>
+    <div class="hero-tags">
+      <span class="h-tag">PID</span>
+      <span class="h-tag">Anti-Windup</span>
+      <span class="h-tag">Ziegler-Nichols</span>
+      <span class="h-tag">Simulation</span>
+      <span class="h-tag">MATLAB</span>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="page-layout">
+  <main>
+
+    <!-- OVERVIEW -->
+    <div class="content-block">
+      <h2><i class="fa fa-book-open"></i> Overview</h2>
+      <p>
+        The <strong>PID (ProportionalâIntegralâDerivative) controller</strong> is the most widely used feedback control algorithm in industry and robotics. Despite its simplicity, a well-tuned PID can handle a surprisingly large class of systems.
+      </p>
+      <p>
+        This project covers the full lifecycle of PID design: deriving the control law from first principles, implementing it in discrete time (suitable for microcontrollers), adding robustness features (anti-windup, derivative filter), and systematically tuning gains using classical methods.
+      </p>
+      <div class="callout">
+        <i class="fa fa-lightbulb"></i>
+        <span>All code is self-contained and dependency-free (only NumPy + Matplotlib). Run <code style="background:#dbeafe;padding:0 3px;border-radius:3px">python pid_example.py</code> to see a step-response simulation immediately.</span>
+      </div>
+    </div>
+
+    <!-- THEORY -->
+    <div class="content-block" id="theory">
+      <h2><i class="fa fa-square-root-variable"></i> Control Theory</h2>
+
+      <h3>Continuous-Time PID</h3>
+      <p>The standard PID control law in continuous time is:</p>
+      <div class="math-box">
+        $$u(t) = K_p\, e(t) \;+\; K_i \int_0^t e(\tau)\,d\tau \;+\; K_d\,\frac{de(t)}{dt}$$
+      </div>
+      <p>where $e(t) = r(t) - y(t)$ is the tracking error, $r(t)$ the setpoint, and $y(t)$ the plant output.</p>
+
+      <h3>Transfer Function Form</h3>
+      <p>In the Laplace domain the PID controller is expressed as:</p>
+      <div class="math-box">
+        $$C(s) = K_p + \frac{K_i}{s} + K_d s = K_p\left(1 + \frac{1}{T_i s} + T_d s\right)$$
+      </div>
+      <p>where $T_i = K_p/K_i$ is the integral time and $T_d = K_d/K_p$ the derivative time.</p>
+
+      <h3>Discrete-Time Implementation</h3>
+      <p>For digital controllers with sample period $T_s$, the integral is approximated by forward Euler and the derivative by a backward difference:</p>
+      <div class="math-box">
+        $$u[k] = K_p\,e[k] + K_i T_s \sum_{j=0}^{k} e[j] + \frac{K_d}{T_s}\bigl(e[k] - e[k-1]\bigr)$$
+      </div>
+
+      <h3>Derivative Filter</h3>
+      <p>Pure differentiation amplifies noise. A first-order low-pass filter is added to the derivative term:</p>
+      <div class="math-box">
+        $$D(s) = \frac{K_d s}{\tau_f s + 1}, \quad \tau_f = \frac{T_d}{N}$$
+      </div>
+      <p>where $N \approx 5$â$20$ is the derivative filter coefficient.</p>
+    </div>
+
+    <!-- ALGORITHM -->
+    <div class="content-block" id="algorithm">
+      <h2><i class="fa fa-diagram-project"></i> Algorithm Steps</h2>
+      <ol class="algo-steps">
+        <li>Measure the plant output $y[k]$ at each time step.</li>
+        <li>Compute the error: $e[k] = r[k] - y[k]$.</li>
+        <li>Accumulate the integral term: $I[k] = I[k-1] + K_i \cdot T_s \cdot e[k]$.</li>
+        <li>Apply anti-windup clamping if the output is saturated.</li>
+        <li>Compute the filtered derivative: $D[k] = \alpha\, D[k-1] + (1-\alpha)\,\frac{K_d}{T_s}(e[k]-e[k-1])$.</li>
+        <li>Sum all three terms: $u[k] = K_p\,e[k] + I[k] + D[k]$.</li>
+        <li>Clamp the output to actuator limits $[u_{\min}, u_{\max}]$.</li>
+        <li>Store $e[k]$ as $e_{\text{prev}}$ and apply $u[k]$ to the plant.</li>
+      </ol>
+    </div>
+
+    <!-- TUNING -->
+    <div class="content-block" id="tuning">
+      <h2><i class="fa fa-sliders"></i> Tuning Methods</h2>
+      <table class="param-table">
+        <thead>
+          <tr><th>Method</th><th>Kp</th><th>Ki (1/Ti)</th><th>Kd (Td)</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Ziegler-Nichols (closed-loop)</strong></td>
+            <td>$0.6\,K_u$</td>
+            <td>$1.2\,K_u / T_u$</td>
+            <td>$0.075\,K_u T_u$</td>
+            <td>Requires ultimate gain $K_u$ and period $T_u$. Often gives aggressive response.</td>
+          </tr>
+          <tr>
+            <td><strong>Cohen-Coon (open-loop)</strong></td>
+            <td colspan="3" style="text-align:center">Based on FOPDT model parameters $K$, $\tau$, $\theta$</td>
+            <td>Better for processes with dead time.</td>
+          </tr>
+          <tr>
+            <td><strong>IMC-PID</strong></td>
+            <td>$\tau / (K \lambda)$</td>
+            <td>$1/\tau$</td>
+            <td>$0$</td>
+            <td>$\lambda$ is the closed-loop time constant (designer choice). Highly systematic.</td>
+          </tr>
+          <tr>
+            <td><strong>Manual / iterative</strong></td>
+            <td colspan="3" style="text-align:center">Increase $K_p$ â add $K_i$ â add $K_d$</td>
+            <td>Useful when model is unavailable.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CODE -->
+    <div class="content-block" id="code">
+      <h2><i class="fab fa-python"></i> Code</h2>
+      <p>Click the tabs to switch between the core controller class, the Ziegler-Nichols auto-tuner, and a complete simulation example.</p>
+
+      <div class="code-window">
+        <div class="code-topbar">
+          <div class="dots">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          </div>
+          <div class="code-tabs">
+            <div class="ctab active" onclick="switchTab(this,'c1')">pid_controller.py</div>
+            <div class="ctab" onclick="switchTab(this,'c2')">zn_tuner.py</div>
+            <div class="ctab" onclick="switchTab(this,'c3')">simulation.py</div>
+          </div>
+        </div>
+        <pre class="code-content" id="c1"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="cls">PIDController</span>:
+    <span class="str">"""
+    Discrete-time PID controller with:
+      - Anti-windup (clamping method)
+      - First-order derivative filter
+      - Output saturation
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, Kp, Ki, Kd,
+                 dt, u_min=-np.inf, u_max=np.inf, N=<span class="num">10</span>):
+        self.Kp, self.Ki, self.Kd = Kp, Ki, Kd
+        self.dt = dt
+        self.u_min, self.u_max = u_min, u_max
+
+        <span class="cmt"># Derivative filter coefficient Î±</span>
+        tau_f = Kd / (Kp * N) <span class="kw">if</span> Kp > <span class="num">0</span> <span class="kw">else</span> <span class="num">1e-3</span>
+        self.alpha = tau_f / (tau_f + dt)
+
+        self._integral   = <span class="num">0.0</span>
+        self._prev_error = <span class="num">0.0</span>
+        self._deriv      = <span class="num">0.0</span>
+
+    <span class="kw">def</span> <span class="fn">reset</span>(self):
+        <span class="str">"""Reset internal state (call before new episode)."""</span>
+        self._integral = self._prev_error = self._deriv = <span class="num">0.0</span>
+
+    <span class="kw">def</span> <span class="fn">compute</span>(self, setpoint, measurement):
+        e  = setpoint - measurement
+        de = e - self._prev_error
+
+        <span class="cmt"># Filtered derivative</span>
+        self._deriv = (self.alpha * self._deriv
+                       + (1 - self.alpha) * self.Kd * de / self.dt)
+
+        <span class="cmt"># Proportional + derivative (before anti-windup)</span>
+        u_pd = self.Kp * e + self._deriv
+        u_sat = np.<span class="fn">clip</span>(u_pd + self._integral, self.u_min, self.u_max)
+
+        <span class="cmt"># Anti-windup: only integrate if not saturated</span>
+        <span class="kw">if</span> u_pd + self._integral == u_sat:
+            self._integral += self.Ki * e * self.dt
+
+        self._prev_error = e
+        <span class="kw">return</span> u_sat</pre>
+
+        <pre class="code-content" id="c2" style="display:none"><span class="kw">from</span> pid_controller <span class="kw">import</span> <span class="cls">PIDController</span>
+
+<span class="kw">def</span> <span class="fn">ziegler_nichols</span>(Ku, Tu, controller_type=<span class="str">"PID"</span>):
+    <span class="str">"""
+    Classic Ziegler-Nichols tuning from ultimate gain Ku
+    and ultimate period Tu (obtained via relay experiment).
+
+    Returns (Kp, Ki, Kd) gains.
+    """</span>
+    rules = {
+        <span class="str">"P"</span>:  (Ku/<span class="num">2</span>,     <span class="num">0</span>,              <span class="num">0</span>),
+        <span class="str">"PI"</span>:  (<span class="num">0.45</span>*Ku, <span class="num">0.54</span>*Ku/Tu,    <span class="num">0</span>),
+        <span class="str">"PID"</span>: (<span class="num">0.6</span>*Ku,  <span class="num">1.2</span>*Ku/Tu,  <span class="num">0.075</span>*Ku*Tu),
+    }
+    <span class="kw">return</span> rules[controller_type]
+
+<span class="kw">def</span> <span class="fn">relay_experiment</span>(plant_fn, dt=<span class="num">0.01</span>, d=<span class="num">1.0</span>, t_max=<span class="num">30</span>):
+    <span class="str">"""
+    Relay feedback test: drives plant into sustained oscillation
+    to identify Ku and Tu automatically.
+
+    plant_fn: callable(u) -> y  (simulate one step)
+    d:        relay amplitude
+    Returns:  (Ku, Tu)
+    """</span>
+    y, u    = <span class="num">0.0</span>, d
+    peaks, peak_times = [], []
+    prev_y  = <span class="num">0.0</span>
+    t       = <span class="num">0.0</span>
+
+    <span class="kw">while</span> t < t_max:
+        y = <span class="fn">plant_fn</span>(u)
+        u = d <span class="kw">if</span> y < <span class="num">0</span> <span class="kw">else</span> -d
+
+        <span class="cmt"># Detect peaks (sign change in derivative)</span>
+        <span class="kw">if</span> prev_y < y <span class="kw">and</span> t > <span class="num">1</span>:
+            <span class="cmt"># Upward peak â record</span>
+            peaks.<span class="fn">append</span>(y)
+            peak_times.<span class="fn">append</span>(t)
+        prev_y = y
+        t += dt
+
+    Tu = <span class="num">2</span> * (peak_times[-<span class="num">1</span>] - peak_times[-<span class="num">2</span>]) <span class="kw">if</span> len(peak_times) >= <span class="num">2</span> <span class="kw">else</span> <span class="kw">None</span>
+     Ku = <span class="num">4</span> * d / (<span class="num">3.14159</span> * np.<span class="fn">mean</span>(peaks[-<span class="num">4</span>:]))
+    <span class="kw">return</span> Ku, Tu</pre>
+
+        <pre class="code-content" id="c3" style="display:none"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> pid_controller <span class="kw">import</span> <span class="cls">PIDController</span>
+
+<span class="cmt"># ââ Plant: first-order system  G(s) = 1 / (s+1) ââ</span>
+<span class="kw">def</span> <span class="fn">plant_step</span>(x, u, dt=<span class="num">0.01</span>):
+    <span class="str">"""Euler integration of áº = -x + u"""</span>
+    <span class="kw">return</span> x + dt * (-x + u)
+
+<span class="cmt"># ââ Simulation ââ</span>
+dt     = <span class="num">0.01</span>
+T      = <span class="num">10.0</span>
+t      = np.<span class="fn">arange</span>(<span class="num">0</span>, T, dt)
+r      = np.<span class="fn">ones_like</span>(t)    <span class="cmt"># unit step reference</span>
+
+pid = <span class="cls">PIDController</span>(Kp=<span class="num">3.0</span>, Ki=<span class="num">1.5</span>, Kd=<span class="num">0.8</span>,
+                     dt=dt, u_min=-<span class="num">5</span>, u_max=<span class="num">5</span>)
+
+y_log, u_log, e_log = [], [], []
+y = <span class="num">0.0</span>
+
+<span class="kw">for</span> k <span class="kw">in</span> range(len(t)):
+    u = pid.<span class="fn">compute</span>(r[k], y)
+    y = <span class="fn">plant_step</span>(y, u, dt)
+    y_log.<span class="fn">append</span>(y)
+    u_log.<span class="fn">append</span>(u)
+    e_log.<span class="fn">append</span>(r[k] - y)
+
+<span class="cmt"># ââ Plot ââ</span>
+fig, axes = plt.<span class="fn">subplots</span>(<span class="num">2</span>, <span class="num">1</span>, figsize=(<span class="num">9</span>, <span class="num">5</span>), sharex=<span class="kw">True</span>)
+axes[<span class="num">0</span>].<span class="fn">plot</span>(t, r, <span class="str">'--'</span>, label=<span class="str">'Setpoint'</span>)
+axes[<span class="num">0</span>].<span class="fn">plot</span>(t, y_log, label=<span class="str">'Output y(t)'</span>)
+axes[<span class="num">0</span>].<span class="fn">set_ylabel</span>(<span class="str">'Output'</span>); axes[<span class="num">0</span>].<span class="fn">legend</span>(); axes[<span class="num">0</span>].<span class="fn">grid</span>(<span class="kw">True</span>)
+axes[<span class="num">1</span>].<span class="fn">plot</span>(t, u_log, color=<span class="str">'tomato'</span>, label=<span class="str">'Control input u(t)'</span>)
+axes[<span class="num">1</span>].<span class="fn">set_ylabel</span>(<span class="str">'Control'</span>); axes[<span class="num">1</span>].<span class="fn">set_xlabel</span>(<span class="str">'Time (s)'</span>)
+axes[<span class="num">1</span>].<span class="fn">legend</span>(); axes[<span class="num">1</span>].<span class="fn">grid</span>(<span class="kw">True</span>)
+plt.<span class="fn">tight_layout</span>()
+plt.<span class="fn">savefig</span>(<span class="str">'pid_response.png'</span>, dpi=<span class="num">150</span>)
+plt.<span class="fn">show</span>()</pre>
+      </div>
+    </div>
+
+    <!-- REFERENCES -->
+    <div class="content-block" id="references">
+      <h2><i class="fa fa-book"></i> References</h2>
+      <ul>
+        <li>ÃstrÃ¶m, K. J., &amp; HÃ¤gglund, T. (2006). <em>Advanced PID Control.</em> ISA.</li>
+        <li>Ziegler, J. G., &amp; Nichols, N. B. (1942). Optimum settings for automatic controllers. <em>Trans. ASME, 64</em>, 759â768.</li>
+        <li>Seborg, D. E., et al. (2016). <em>Process Dynamics and Control.</em> Wiley.</li>
+        <li>Ogata, K. (2010). <em>Modern Control Engineering</em> (5th ed.). Prentice Hall.</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h4>On This Page</h4>
+      <a class="toc-link active" href="#theory">Control Theory</a>
+      <a class="toc-link" href="#algorithm">Algorithm Steps</a>
+      <a class="toc-link" href="#tuning">Tuning Methods</a>
+      <a class="toc-link" href="#code">Code</a>
+      <a class="toc-link" href="#references">References</a>
+    </div>
+    <div class="sidebar-card">
+      <h4>Repository</h4>
+      <a class="gh-btn" href="https://github.com/dgist-control" target="_blank">
+        <i class="fab fa-github"></i> View on GitHub
+      </a>
+    </div>
+    <div class="sidebar-card">
+      <h4>Tags</h4>
+      <div class="sidebar-tags">
+        <span class="tag">PID</span>
+        <span class="tag">Python</span>
+        <span class="tag">MATLAB</span>
+        <span class="tag">Anti-Windup</span>
+        <span class="tag">Ziegler-Nichols</span>
+        <span class="tag">Simulation</span>
+        <span class="tag">Classical</span>
+      </div>
+    </div>
+    <div class="sidebar-card">
+      <h4>Related Projects</h4>
+      <a class="resource-link" href="lqr.html"><i class="fa fa-arrow-right"></i> LQR Control</a>
+      <a class="resource-link" href="mpc.html"><i class="fa fa-arrow-right"></i> Model Predictive Control</a>
+      <a class="resource-link" href="kalman.html"><i class="fa fa-arrow-right"></i> Kalman Filter</a>
+    </div>
+  </aside>
+</div>
+
+<footer style="background:#1a3a5c; color:rgba(255,255,255,0.55); text-align:center; padding:2rem; font-size:0.83rem;">
+  <a href="../index.html" style="color:#4fa3e8; text-decoration:none;">â Motion Control Lab Â· DGIST</a>
+  &nbsp;Â·&nbsp; Â© 2025 MIT License
+</footer>
+
+<script>
+function switchTab(el, id) {
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.code-content').forEach(c => c.style.display = 'none');
+  el.classList.add('active');
+  document.getElementById(id).style.display = 'block';
+}
+</script>
+</body>
+</html>
