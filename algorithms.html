@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Algorithms – DGIST Control Lab</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="nav-brand">DGIST Control Lab</div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="algorithms.html">Control Algorithms</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1>Control Algorithms</h1>
+      <p>Interactive demonstrations and explanations of fundamental control strategies</p>
+    </div>
+
+    <div class="content">
+
+      <!-- ===================== PID ===================== -->
+      <h2 class="section-title" id="pid">PID Controller</h2>
+      <p class="section-desc">
+        The PID (Proportional–Integral–Derivative) controller is the most widely
+        used feedback controller in engineering. Adjust the gains below and run
+        the simulator to observe how each term affects the closed-loop response
+        of a first-order plant.
+      </p>
+
+      <!-- Interactive Simulator -->
+      <div class="simulator-box">
+        <div class="controls-grid">
+          <div class="control-group">
+            <label for="kp">Proportional Gain K<sub>p</sub></label>
+            <input type="range" id="kp" min="0" max="10" step="0.1" value="2.0" />
+            <div class="value-display" id="kp-val">2.0</div>
+          </div>
+          <div class="control-group">
+            <label for="ki">Integral Gain K<sub>i</sub></label>
+            <input type="range" id="ki" min="0" max="5" step="0.05" value="0.5" />
+            <div class="value-display" id="ki-val">0.50</div>
+          </div>
+          <div class="control-group">
+            <label for="kd">Derivative Gain K<sub>d</sub></label>
+            <input type="range" id="kd" min="0" max="3" step="0.05" value="0.2" />
+            <div class="value-display" id="kd-val">0.20</div>
+          </div>
+          <div class="control-group">
+            <label for="setpoint">Setpoint</label>
+            <input type="range" id="setpoint" min="0.1" max="1" step="0.05" value="1.0" />
+            <div class="value-display" id="setpoint-val">1.00</div>
+          </div>
+        </div>
+
+        <div class="sim-buttons">
+          <button class="btn-run" id="btn-run">&#9654; Run Simulation</button>
+          <button class="btn-reset" id="btn-reset">&#8635; Reset</button>
+        </div>
+
+        <canvas id="pid-canvas" height="300"></canvas>
+
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#4a7cdc;"></div>
+            <span>Plant Output</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#e63946; border-style:dashed;"></div>
+            <span>Setpoint</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot" style="background:#2a9d8f;"></div>
+            <span>Control Signal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PID Theory -->
+      <div class="info-box">
+        <h3>How It Works</h3>
+        <p>
+          The PID control law computes a control signal <em>u(t)</em> from the
+          tracking error <em>e(t) = r(t) − y(t)</em>:
+        </p>
+        <div class="formula">u(t) = Kp·e(t)  +  Ki·∫e(τ)dτ  +  Kd·de(t)/dt</div>
+        <ul>
+          <li><strong>Proportional (K<sub>p</sub>):</strong> Reacts to the current error. Higher values give a faster response but can cause overshoot.</li>
+          <li><strong>Integral (K<sub>i</sub>):</strong> Eliminates steady-state error by accumulating past errors over time.</li>
+          <li><strong>Derivative (K<sub>d</sub>):</strong> Predicts future error from its rate of change, providing damping and reducing overshoot.</li>
+        </ul>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- ===================== LQR ===================== -->
+      <h2 class="section-title" id="lqr">Linear Quadratic Regulator (LQR)</h2>
+      <p class="section-desc">
+        LQR is an optimal state-feedback control method that minimises a
+        quadratic cost function balancing state deviation and control effort.
+      </p>
+
+      <div class="info-box">
+        <h3>Problem Formulation</h3>
+        <p>Given the linear system:</p>
+        <div class="formula">ẋ = Ax + Bu,&nbsp;&nbsp; y = Cx</div>
+        <p>LQR finds the feedback gain <em>K</em> such that <em>u = −Kx</em> minimises:</p>
+        <div class="formula">J = ∫₀^∞ (xᵀQx + uᵀRu) dt</div>
+        <ul>
+          <li><strong>Q ≥ 0</strong> weights the state deviation penalty.</li>
+          <li><strong>R &gt; 0</strong> weights the control effort penalty.</li>
+          <li>The optimal gain is <em>K = R⁻¹BᵀP</em>, where <em>P</em> solves the Algebraic Riccati Equation (ARE).</li>
+        </ul>
+      </div>
+
+      <div class="info-box">
+        <h3>Key Properties</h3>
+        <ul>
+          <li>Guarantees at least 6 dB gain margin and ±60° phase margin (for single-input systems).</li>
+          <li>Closed-loop stability is ensured when the pair (A, B) is stabilisable and (A, Q<sup>½</sup>) is detectable.</li>
+          <li>Commonly paired with a Kalman filter (LQG) for output-feedback control.</li>
+        </ul>
+      </div>
+
+      <hr class="section-divider" />
+
+      <!-- ===================== Robust ===================== -->
+      <h2 class="section-title" id="robust">Robust Control (H∞)</h2>
+      <p class="section-desc">
+        H∞ synthesis designs a controller that minimises the worst-case gain
+        from disturbance inputs to regulated outputs, providing robustness
+        against model uncertainty.
+      </p>
+
+      <div class="info-box">
+        <h3>H∞ Norm</h3>
+        <p>
+          For a stable transfer function <em>T(s)</em>, the H∞ norm is the peak
+          singular value over all frequencies:
+        </p>
+        <div class="formula">‖T‖∞ = sup_ω  σ̄[T(jω)]</div>
+        <p>
+          The H∞ control problem seeks a controller <em>C(s)</em> such that the
+          closed-loop norm satisfies <em>‖T_zw‖∞ &lt; γ</em> for a given
+          performance level <em>γ</em>.
+        </p>
+      </div>
+
+      <div class="info-box">
+        <h3>Advantages over Classical Methods</h3>
+        <ul>
+          <li>Handles multi-input multi-output (MIMO) plants directly.</li>
+          <li>Provides formal robustness guarantees against structured and unstructured uncertainty.</li>
+          <li>Allows systematic frequency-domain performance shaping via weighting functions.</li>
+        </ul>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <footer>
+    <p>&copy; 2026 DGIST Control Lab. All rights reserved.</p>
+  </footer>
+
+  <script src="pid_simulator.js"></script>
+</body>
+</html>
