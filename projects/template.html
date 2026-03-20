@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- âï¸ CHANGE: Update the title below -->
+  <title>[Project Title] â Motion Control Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <!-- shared styles â identical to pid-control.html, paste same <style> block here -->
+  <style>
+    /* ââ paste the full <style> block from pid-control.html here ââ */
+    :root { --primary:#1a3a5c; --accent:#2e7dd1; --accent-light:#4fa3e8; --bg:#f8f9fc; --text:#1e2433; --text-muted:#5a6478; --border:#e0e6f0; --tag-bg:#e8f0fb; --tag-color:#2e7dd1; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+    nav { background:var(--primary); position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(0,0,0,.18); }
+    .nav-inner { max-width:1200px; margin:0 auto; padding:0 2rem; display:flex; align-items:center; justify-content:space-between; height:62px; }
+    .nav-logo { display:flex; align-items:center; gap:.6rem; text-decoration:none; }
+    .nav-logo .logo-icon { width:36px; height:36px; background:var(--accent); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1rem; color:#fff; }
+    .nav-logo span { color:#fff; font-weight:600; font-size:1rem; }
+    .nav-back { color:rgba(255,255,255,.7); text-decoration:none; font-size:.88rem; display:flex; align-items:center; gap:.4rem; }
+    .nav-back:hover { color:#fff; }
+    .page-hero { background:linear-gradient(135deg,var(--primary) 0%,#0f2440 100%); color:#fff; padding:3.5rem 2rem 3rem; }
+    .page-hero-inner { max-width:860px; margin:0 auto; }
+    .breadcrumb { font-size:.78rem; color:rgba(255,255,255,.5); margin-bottom:1rem; display:flex; align-items:center; gap:.4rem; }
+    .breadcrumb a { color:rgba(255,255,255,.55); text-decoration:none; }
+    .status-badge { display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:.2rem .7rem; border-radius:100px; margin-bottom:.9rem; }
+    .status-active { background:rgba(45,164,78,.25); border:1px solid rgba(45,164,78,.5); color:#7ee89c; }
+    .status-ongoing { background:rgba(234,179,8,.2); border:1px solid rgba(234,179,8,.4); color:#fde68a; }
+    .status-new { background:rgba(59,130,246,.25); border:1px solid rgba(59,130,246,.5); color:#93c5fd; }
+    .page-hero h1 { font-family:'Merriweather',serif; font-size:2.2rem; line-height:1.25; margin-bottom:.8rem; }
+    .page-hero p { color:rgba(255,255,255,.72); font-size:1rem; max-width:600px; }
+    .hero-meta { display:flex; gap:1.5rem; margin-top:1.8rem; flex-wrap:wrap; }
+    .meta-item { display:flex; align-items:center; gap:.4rem; font-size:.83rem; color:rgba(255,255,255,.55); }
+    .meta-item i { color:var(--accent-light); }
+    .hero-tags { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.2rem; }
+    .h-tag { background:rgba(46,125,209,.25); color:var(--accent-light); border:1px solid rgba(79,163,232,.3); font-size:.74rem; font-weight:600; padding:.2rem .65rem; border-radius:4px; }
+    .page-layout { max-width:1200px; margin:0 auto; padding:2.5rem 2rem 4rem; display:grid; grid-template-columns:1fr 260px; gap:2.5rem; align-items:start; }
+    @media(max-width:900px){.page-layout{grid-template-columns:1fr}.sidebar{display:none}}
+    .content-block { background:#fff; border:1px solid var(--border); border-radius:14px; padding:2.2rem 2.4rem; margin-bottom:2rem; }
+    .content-block h2 { font-family:'Merriweather',serif; font-size:1.35rem; color:var(--primary); margin-bottom:1rem; padding-bottom:.7rem; border-bottom:2px solid var(--tag-bg); display:flex; align-items:center; gap:.6rem; }
+    .content-block h2 i { color:var(--accent); font-size:.95rem; }
+    .content-block h3 { font-size:1rem; font-weight:700; color:var(--primary); margin:1.4rem 0 .5rem; }
+    .content-block p { color:var(--text-muted); font-size:.93rem; margin-bottom:.8rem; line-height:1.75; }
+    .content-block ul { padding-left:1.3rem; color:var(--text-muted); font-size:.92rem; }
+    .content-block ul li { margin-bottom:.4rem; }
+    .math-box { background:#f0f4fa; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.2rem 1.5rem; margin:1.2rem 0; overflow-x:auto; }
+    .algo-steps { counter-reset:step; list-style:none; padding:0; margin:1rem 0; }
+    .algo-steps li { counter-increment:step; display:flex; gap:1rem; align-items:flex-start; margin-bottom:.85rem; font-size:.92rem; color:var(--text-muted); }
+    .algo-steps li::before { content:counter(step); min-width:26px; height:26px; background:var(--accent); color:#fff; border-radius:50%; font-size:.78rem; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+    .callout { display:flex; gap:.9rem; background:#eff6ff; border:1px solid #bfdbfe; border-radius:10px; padding:1rem 1.2rem; margin:1rem 0; font-size:.88rem; color:#1e3a5f; }
+    .callout i { color:var(--accent); margin-top:2px; flex-shrink:0; }
+    .code-window { background:#161b22; border:1px solid #30363d; border-radius:12px; overflow:hidden; margin:1.2rem 0; }
+    .code-topbar { background:#21262d; padding:.75rem 1.1rem; display:flex; align-items:center; gap:.8rem; border-bottom:1px solid #30363d; }
+    .dots { display:flex; gap:5px; }
+    .dot { width:11px; height:11px; border-radius:50%; }
+    .dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+    .code-tabs { display:flex; gap:.2rem; }
+    .ctab { font-size:.76rem; color:rgba(255,255,255,.4); padding:.22rem .8rem; border-radius:5px; cursor:pointer; font-family:'JetBrains Mono',monospace; transition:all .18s; }
+    .ctab.active { background:#2d333b; color:#c9d1d9; }
+    pre.code-content { padding:1.5rem; overflow-x:auto; font-family:'JetBrains Mono',monospace; font-size:.82rem; line-height:1.78; color:#c9d1d9; }
+    .kw{color:#ff7b72}.fn{color:#d2a8ff}.str{color:#a5d6ff}.num{color:#79c0ff}.cmt{color:#8b949e;font-style:italic}.cls{color:#ffa657}
+    .sidebar { position:sticky; top:82px; }
+    .sidebar-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:1.4rem; margin-bottom:1.2rem; }
+    .sidebar-card h4 { font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-muted); margin-bottom:1rem; }
+    .toc-link { display:block; font-size:.85rem; color:var(--text-muted); text-decoration:none; padding:.3rem .7rem; border-left:2px solid transparent; transition:all .18s; }
+    .toc-link:hover,.toc-link.active{color:var(--accent);border-color:var(--accent)}
+    .resource-link { display:flex; align-items:center; gap:.5rem; font-size:.84rem; color:var(--accent); text-decoration:none; padding:.4rem 0; }
+    .tag { font-size:.72rem; font-weight:600; background:var(--tag-bg); color:var(--tag-color); padding:.18rem .55rem; border-radius:4px; }
+    .sidebar-tags { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .gh-btn { display:flex; align-items:center; justify-content:center; gap:.5rem; width:100%; padding:.65rem; background:var(--primary); color:#fff; border-radius:8px; text-decoration:none; font-size:.85rem; font-weight:600; transition:background .2s; }
+    .gh-btn:hover { background:var(--accent); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="../index.html">
+      <div class="logo-icon"><i class="fa fa-robot"></i></div>
+      <span>Motion Control Lab</span>
+    </a>
+    <a class="nav-back" href="../index.html"><i class="fa fa-arrow-left"></i> Back to Projects</a>
+  </div>
+</nav>
+
+<!-- âï¸ CHANGE: Update hero content -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="breadcrumb">
+      <a href="../index.html">Home</a>
+      <i class="fa fa-chevron-right" style="font-size:.6rem"></i>
+      <a href="../index.html#projects">Projects</a>
+      <i class="fa fa-chevron-right" style="font-size:.6rem"></i>
+      [Project Title]
+    </div>
+    <!-- status-active / status-ongoing / status-new -->
+    <div class="status-badge status-active"><i class="fa fa-circle" style="font-size:.5rem"></i> Active</div>
+    <h1>[Project Title]</h1>
+    <p>[One-sentence description of the project.]</p>
+    <div class="hero-meta">
+      <span class="meta-item"><i class="fab fa-python"></i> Python 3.10+</span>
+      <span class="meta-item"><i class="fa fa-calendar"></i> [Year]</span>
+    </div>
+    <div class="hero-tags">
+      <span class="h-tag">[Tag 1]</span>
+      <span class="h-tag">[Tag 2]</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-layout">
+  <main>
+
+    <!-- OVERVIEW -->
+    <div class="content-block">
+      <h2><i class="fa fa-book-open"></i> Overview</h2>
+      <p>[Describe the project and its motivation here.]</p>
+      <div class="callout">
+        <i class="fa fa-lightbulb"></i>
+        <span>[Quick-start note: e.g., "Run python main.py to try the demo."]</span>
+      </div>
+    </div>
+
+    <!-- THEORY -->
+    <div class="content-block" id="theory">
+      <h2><i class="fa fa-square-root-variable"></i> Control Theory</h2>
+      <h3>[Subsection 1]</h3>
+      <p>[Explanation]</p>
+      <!-- Math example: -->
+      <div class="math-box">$$[LaTeX formula here]$$</div>
+      <h3>[Subsection 2]</h3>
+      <p>[Explanation]</p>
+    </div>
+
+    <!-- ALGORITHM -->
+    <div class="content-block" id="algorithm">
+      <h2><i class="fa fa-diagram-project"></i> Algorithm Steps</h2>
+      <ol class="algo-steps">
+        <li>[Step 1 description]</li>
+        <li>[Step 2 description]</li>
+        <li>[Step 3 description]</li>
+        <li>[Add more steps as needed]</li>
+      </ol>
+    </div>
+
+    <!-- CODE -->
+    <div class="content-block" id="code">
+      <h2><i class="fab fa-python"></i> Code</h2>
+      <div class="code-window">
+        <div class="code-topbar">
+          <div class="dots">
+            <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+          </div>
+          <div class="code-tabs">
+            <!-- âï¸ CHANGE: update filenames and add more tabs if needed -->
+            <div class="ctab active" onclick="switchTab(this,'c1')">main.py</div>
+            <div class="ctab" onclick="switchTab(this,'c2')">simulation.py</div>
+          </div>
+        </div>
+        <!-- âï¸ CHANGE: replace with actual code (use syntax highlight spans) -->
+        <pre class="code-content" id="c1"><span class="cmt"># [Tab 1 code here]</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">your_function</span>(x):
+    <span class="kw">return</span> x</pre>
+
+        <pre class="code-content" id="c2" style="display:none"><span class="cmt"># [Tab 2 code here]</span></pre>
+      </div>
+    </div>
+
+    <!-- REFERENCES -->
+    <div class="content-block" id="references">
+      <h2><i class="fa fa-book"></i> References</h2>
+      <ul>
+        <li>[Author et al. (Year). <em>Title.</em> Journal/Publisher.]</li>
+        <li>[Author et al. (Year). <em>Title.</em> Journal/Publisher.]</li>
+      </ul>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <h4>On This Page</h4>
+      <a class="toc-link active" href="#theory">Theory</a>
+      <a class="toc-link" href="#algorithm">Algorithm</a>
+      <a class="toc-link" href="#code">Code</a>
+      <a class="toc-link" href="#references">References</a>
+    </div>
+    <div class="sidebar-card">
+      <h4>Repository</h4>
+      <a class="gh-btn" href="https://github.com/dgist-control" target="_blank">
+        <i class="fab fa-github"></i> View on GitHub
+      </a>
+    </div>
+    <div class="sidebar-card">
+      <h4>Tags</h4>
+      <div class="sidebar-tags">
+        <span class="tag">[Tag 1]</span>
+        <span class="tag">[Tag 2]</span>
+        <span class="tag">Python</span>
+      </div>
+    </div>
+    <div class="sidebar-card">
+      <h4>Related Projects</h4>
+      <!-- âï¸ CHANGE: link to related project pages -->
+      <a class="resource-link" href="pid-control.html"><i class="fa fa-arrow-right"></i> PID Control</a>
+      <a class="resource-link" href="lqr.html"><i class="fa fa-arrow-right"></i> LQR Control</a>
+    </div>
+  </aside>
+</div>
+
+<footer style="background:#1a3a5c;color:rgba(255,255,255,.55);text-align:center;padding:2rem;font-size:.83rem;">
+  <a href="../index.html" style="color:#4fa3e8;text-decoration:none;">â Motion Control Lab Â· DGIST</a>
+  &nbsp;Â·&nbsp; Â© 2025 MIT License
+</footer>
+
+<script>
+function switchTab(el, id) {
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.code-content').forEach(c => c.style.display = 'none');
+  el.classList.add('active');
+  document.getElementById(id).style.display = 'block';
+}
+</script>
+</body>
+</html>
