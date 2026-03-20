@@ -1,0 +1,324 @@
+/* =========================================================
+   DGIST Control Lab – Global Stylesheet
+   ========================================================= */
+
+/* ----- Reset & Base ----- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f8f9fa;
+  color: #212529;
+  line-height: 1.6;
+}
+
+/* ----- Navbar ----- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1a1f36;
+  padding: 0.85rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.nav-brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.03em;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: #c8d0e7;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #fff;
+}
+
+/* ----- Hero ----- */
+.hero {
+  background: linear-gradient(135deg, #1a1f36 0%, #2e3a6e 100%);
+  color: #fff;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.hero .subtitle {
+  font-size: 1.2rem;
+  color: #c8d0e7;
+  margin-bottom: 2rem;
+}
+
+/* ----- Buttons ----- */
+.btn-primary {
+  display: inline-block;
+  background: #4a7cdc;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #3566c5;
+}
+
+.btn-secondary {
+  display: inline-block;
+  color: #4a7cdc;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.btn-secondary:hover {
+  color: #2e5ab8;
+}
+
+/* ----- Feature Cards ----- */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card h2 {
+  font-size: 1.2rem;
+  color: #1a1f36;
+}
+
+.card p {
+  color: #495057;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+/* ----- Algorithms Page ----- */
+.page-header {
+  background: linear-gradient(135deg, #1a1f36 0%, #2e3a6e 100%);
+  color: #fff;
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: #c8d0e7;
+  font-size: 1rem;
+}
+
+.content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  color: #1a1f36;
+  margin-bottom: 0.5rem;
+}
+
+.section-desc {
+  color: #495057;
+  margin-bottom: 1.5rem;
+  font-size: 0.97rem;
+}
+
+/* ----- PID Simulator ----- */
+.simulator-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 3rem;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.control-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #343a40;
+  margin-bottom: 0.35rem;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: #4a7cdc;
+}
+
+.control-group .value-display {
+  text-align: right;
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.2rem;
+}
+
+.sim-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.btn-run {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-run:hover { background: #218838; }
+
+.btn-reset {
+  background: #6c757d;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-reset:hover { background: #565e64; }
+
+canvas {
+  width: 100%;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  display: block;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 4px;
+  border-radius: 2px;
+}
+
+/* ----- Info Boxes ----- */
+.info-box {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 2rem;
+}
+
+.info-box h3 {
+  font-size: 1.1rem;
+  color: #1a1f36;
+  margin-bottom: 0.75rem;
+}
+
+.info-box p, .info-box li {
+  color: #495057;
+  font-size: 0.95rem;
+}
+
+.info-box ul {
+  padding-left: 1.25rem;
+}
+
+.info-box li { margin-bottom: 0.35rem; }
+
+.formula {
+  background: #f8f9fa;
+  border-left: 4px solid #4a7cdc;
+  padding: 0.75rem 1rem;
+  border-radius: 0 6px 6px 0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  margin: 0.75rem 0;
+  color: #343a40;
+}
+
+/* ----- Divider ----- */
+hr.section-divider {
+  border: none;
+  border-top: 1px solid #dee2e6;
+  margin: 2.5rem 0;
+}
+
+/* ----- Footer ----- */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  background: #1a1f36;
+  color: #8893b5;
+  font-size: 0.85rem;
+  margin-top: 2rem;
+}
