@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Motion Control Lab â DGIST</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #1a3a5c;
+      --accent: #2e7dd1;
+      --accent-light: #4fa3e8;
+      --bg: #f8f9fc;
+      --card-bg: #ffffff;
+      --text: #1e2433;
+      --text-muted: #5a6478;
+      --border: #e0e6f0;
+      --code-bg: #0d1117;
+      --green: #2da44e;
+      --tag-bg: #e8f0fb;
+      --tag-color: #2e7dd1;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ââ NAV ââ */
+    nav {
+      background: var(--primary);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 62px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+    }
+    .nav-logo .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #fff;
+    }
+    .nav-logo span {
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: rgba(255,255,255,0.78);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      letter-spacing: 0.03em;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-github {
+      background: rgba(255,255,255,0.12);
+      color: #fff !important;
+      padding: 0.35rem 0.9rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.22);
+      transition: background 0.2s !important;
+    }
+    .nav-github:hover { background: rgba(255,255,255,0.22) !important; }
+
+    /* ââ HERO ââ */
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, #0f2440 60%, #163354 100%);
+      color: #fff;
+      padding: 6rem 2rem 5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(46,125,209,0.18) 0%, transparent 70%);
+    }
+    .hero-inner { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(46,125,209,0.25);
+      border: 1px solid rgba(79,163,232,0.4);
+      color: var(--accent-light);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      border-radius: 100px;
+      margin-bottom: 1.4rem;
+    }
+    .hero h1 {
+      font-family: 'Merriweather', serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 span { color: var(--accent-light); }
+    .hero p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.78);
+      max-width: 620px;
+      margin: 0 auto 2.2rem;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #245fa8; transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.1); }
+
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-top: 3.5rem;
+      padding-top: 2.5rem;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+    .stat { text-align: center; }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent-light);
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 0.1rem;
+    }
+
+    /* ââ SECTIONS ââ */
+    section { padding: 5rem 2rem; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+    .section-title {
+      font-family: 'Merriweather', serif;
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 0.7rem;
+    }
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 0.97rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* ââ RESEARCH AREAS ââ */
+    #research { background: #fff; }
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+    .research-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem;
+      transition: all 0.25s;
+      background: var(--bg);
+    }
+    .research-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 6px 24px rgba(46,125,209,0.1);
+      transform: translateY(-3px);
+    }
+    .rc-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      background: var(--tag-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+    .research-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .research-card p {
+      font-size: 0.87rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .rc-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 1rem; }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--tag-bg);
+      color: var(--tag-color);
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+    }
+
+    /* ââ PROJECTS ââ */
+    #projects { background: var(--bg); }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.8rem;
+    }
+    .project-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: all 0.25s;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card:hover {
+      box-shadow: 0 8px 30px rgba(26,58,92,0.12);
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+    .pc-header {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .pc-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .pc-icon.blue { background: #dbeafe; color: #1d4ed8; }
+    .pc-icon.green { background: #dcfce7; color: #15803d; }
+    .pc-icon.purple { background: #ede9fe; color: #7c3aed; }
+    .pc-icon.orange { background: #ffedd5; color: #c2410c; }
+    .pc-meta { flex: 1; }
+    .pc-status {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 100px;
+      display: inline-block;
+      margin-bottom: 0.35rem;
+    }
+    .status-active { background: #dcfce7; color: #15803d; }
+    .status-ongoing { background: #fef3c7; color: #b45309; }
+    .status-new { background: #dbeafe; color: #1d4ed8; }
+    .pc-meta h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .pc-body { padding: 1rem 1.5rem; flex: 1; }
+    .pc-body p { font-size: 0.87rem; color: var(--text-muted); line-height: 1.65; }
+    .pc-footer {
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+    }
+    .pc-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .pc-footer .tag { font-size: 0.7rem; }
+    .pc-arrow { color: var(--accent); font-size: 0.85rem; }
+
+    /* ââ CODE PREVIEW ââ */
+    #code-preview { background: #0d1117; }
+    #code-preview .section-label { color: var(--accent-light); }
+    #code-preview .section-title { color: #fff; }
+    #code-preview .section-sub { color: rgba(255,255,255,0.5); }
+    .code-window {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .code-topbar {
+      background: #21262d;
+      padding: 0.85rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid #30363d;
+    }
+    .dots { display: flex; gap: 6px; }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .tab-bar { display: flex; gap: 0.2rem; }
+    .tab {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      padding: 0.25rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tab.active { background: #2d333b; color: #c9d1d9; }
+    pre.code-content {
+      padding: 1.8rem;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.75;
+      color: #c9d1d9;
+      min-height: 260px;
+    }
+    .kw { color: #ff7b72; }
+    .fn { color: #d2a8ff; }
+    .str { color: #a5d6ff; }
+    .num { color: #79c0ff; }
+    .cmt { color: #8b949e; font-style: italic; }
+    .cls { color: #ffa657; }
+
+    /* ââ TEAM ââ */
+    #team { background: #fff; }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .member-card {
+      text-align: center;
+      padding: 1.8rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.2s;
+      background: var(--bg);
+    }
+    .member-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(46,125,209,0.1);
+    }
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      color: #fff;
+      margin: 0 auto 1rem;
+      font-weight: 700;
+    }
+    .member-card h4 { font-size: 0.95rem; font-weight: 700; color: var(--primary); }
+    .member-role { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .member-links { margin-top: 0.8rem; display: flex; justify-content: center; gap: 0.6rem; }
+    .member-links a { color: var(--text-muted); font-size: 0.9rem; transition: color 0.2s; text-decoration: none; }
+    .member-links a:hover { color: var(--accent); }
+
+    /* ââ FOOTER ââ */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--accent-light); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .footer-inner { max-width: 700px; margin: 0 auto; }
+    .footer-logo {
+      font-family: 'Merriweather', serif;
+      color: #fff;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ââ RESPONSIVE ââ */
+    @media (max-width: 700px) {
+      .hero h1 { font-size: 2rem; }
+      .nav-links { display: none; }
+      .hero-stats { gap: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ââ NAVIGATION ââ -->
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="#">
+      <div class="logo-icon"><i class="fa fa-robot"></i></div>
+      <span>Motion Control Lab</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#research">Research</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#code-preview">Code</a></li>
+      <li><a href="#team">Team</a></li>
+      <li>
+        <a class="nav-github" href="https://github.com/dgist-control" target="_blank">
+          <i class="fab fa-github"></i> GitHub
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ââ HERO ââ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><i class="fa fa-flask"></i> &nbsp;DGIST Â· Motion Control Lab</div>
+    <h1>Advancing <span>Motion Control</span><br>Through Algorithms & Code</h1>
+    <p>
+      We design, analyze, and implement state-of-the-art motion control algorithms â
+      from classical PID to modern model predictive control and learning-based approaches.
+      All code is open-source and reproducible.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#projects">
+        <i class="fa fa-folder-open"></i> Explore Projects
+      </a>
+      <a class="btn btn-outline" href="https://github.com/dgist-control" target="_blank">
+        <i class="fab fa-github"></i> View on GitHub
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-number">12+</div>
+        <div class="stat-label">Algorithms</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Projects</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number">DGIST</div>
+        <div class="stat-label">Institution</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ââ RESEARCH AREAS ââ -->
+<section id="research">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Research Areas</div>
+      <h2 class="section-title">Core Algorithms & Methods</h2>
+      <p class="section-sub">
+        We study a broad spectrum of control theory and implement each method with detailed explanations and reproducible code.
+      </p>
+    </div>
+    <div class="research-grid">
+
+      <div class="research-card">
+        <div class="rc-icon"><i class="fa fa-sliders"></i></div>
+        <h3>Classical Control</h3>
+        <p>PID controllers, lead-lag compensators, root locus, and frequency-domain design methods.</p>
+        <div class="rc-tags">
+          <span class="tag">PID</span>
+          <span class="tag">Bode</span>
+          <span class="tag">Nyquist</span>
+          <span class="tag">Lead-Lag</span>
+        </div>
+      </div>
+
+      <div class="research-card">
+        <div class="rc-icon"><i class="fa fa-chart-line"></i></div>
+        <h3>Optimal Control</h3>
+        <p>LQR, LQG, and Hâ control formulations with state-space representations and Riccati solutions.</p>
+        <div class="rc-tags">
+          <span class="tag">LQR</span>
+          <span class="tag">LQG</span>
+          <span class="tag">Hâ</span>
+          <span class="tag">Riccati</span>
+        </div>
+      </div>
+
+      <div class="research-card">
+        <div class="rc-icon"><i class="fa fa-eye"></i></div>
+        <h3>Model Predictive Control</h3>
+        <p>Finite-horizon optimization-based control with constraint handling for linear and nonlinear systems.</p>
+        <div class="rc-tags">
+          <span class="tag">MPC</span>
+          <span class="tag">NMPC</span>
+          <span class="tag">QP</span>
+          <span class="tag">OSQP</span>
+        </div>
+      </div>
+
+      <div class="research-card">
+        <div class="rc-icon"><i class="fa fa-route"></i></div>
+        <h3>Trajectory Planning</h3>
+        <p>Motion planning algorithms including spline interpolation, minimum-snap, and sampling-based methods.</p>
+        <div class="rc-tags">
+          <span class="tag">Spline</span>
+          <span class="tag">Min-Snap</span>
+          <span class="tag">RRT</span>
+          <span class="tag">CHOMP</span>
+        </div>
+      </div>
+
+      <div class="research-card">
+        <div class="rc-icon"><i class="fa fa-brain"></i></div>
+        <h3>Learning-Based Control</h3>
+        <p>Reinforcement learning for control, neural network policies, and model-based RL approaches.</p>
+        <div class="rc-tags">
+          <span class="tag">RL</span>
+          <span class="tag">PPO</span>
+          <span class="tag">SAC</span>
+          <span class="tag">MBRL</span>
+        </div>
+      </div>
+
+      <div class="research-card">
+        <div class="rc-icon"><i class="fa fa-wave-square"></i></div>
+        <h3>State Estimation</h3>
+        <p>Kalman filtering, extended and unscented variants, and particle filters for noisy dynamical systems.</p>
+        <div class="rc-tags">
+          <span class="tag">Kalman</span>
+          <span class="tag">EKF</span>
+          <span class="tag">UKF</span>
+          <span class="tag">Particle</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ââ PROJECTS ââ -->
+<section id="projects">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Projects</div>
+      <h2 class="section-title">Algorithm Implementations</h2>
+      <p class="section-sub">
+        Each project page contains algorithm theory, step-by-step derivations, and fully commented Python/MATLAB code.
+      </p>
+    </div>
+    <div class="projects-grid">
+
+      <a class="project-card" href="projects/pid-control.html">
+        <div class="pc-header">
+          <div class="pc-icon blue"><i class="fa fa-sliders-h"></i></div>
+          <div class="pc-meta">
+            <span class="pc-status status-active">Active</span>
+            <h3>PID Control & Tuning</h3>
+          </div>
+        </div>
+        <div class="pc-body">
+          <p>Comprehensive study of PID controllers including manual tuning, Ziegler-Nichols, and auto-tuning methods with simulation environments.</p>
+        </div>
+        <div class="pc-footer">
+          <div class="pc-tags">
+            <span class="tag">Python</span><span class="tag">MATLAB</span><span class="tag">Simulation</span>
+          </div>
+          <span class="pc-arrow"><i class="fa fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="project-card" href="projects/lqr.html">
+        <div class="pc-header">
+          <div class="pc-icon green"><i class="fa fa-chart-line"></i></div>
+          <div class="pc-meta">
+            <span class="pc-status status-active">Active</span>
+            <h3>LQR â Linear Quadratic Regulator</h3>
+          </div>
+        </div>
+        <div class="pc-body">
+          <p>State-feedback optimal control design via the Riccati equation. Includes inverted pendulum and quadrotor stabilization demos.</p>
+        </div>
+        <div class="pc-footer">
+          <div class="pc-tags">
+            <span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">SciPy</span>
+          </div>
+          <span class="pc-arrow"><i class="fa fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="project-card" href="projects/mpc.html">
+        <div class="pc-header">
+          <div class="pc-icon purple"><i class="fa fa-eye"></i></div>
+          <div class="pc-meta">
+            <span class="pc-status status-ongoing">Ongoing</span>
+            <h3>Model Predictive Control</h3>
+          </div>
+        </div>
+        <div class="pc-body">
+          <p>Receding-horizon MPC for constrained linear systems. QP formulation with OSQP solver and obstacle-avoidance experiments.</p>
+        </div>
+        <div class="pc-footer">
+          <div class="pc-tags">
+            <span class="tag">Python</span><span class="tag">OSQP</span><span class="tag">CasADi</span>
+          </div>
+          <span class="pc-arrow"><i class="fa fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="project-card" href="projects/kalman.html">
+        <div class="pc-header">
+          <div class="pc-icon orange"><i class="fa fa-wave-square"></i></div>
+          <div class="pc-meta">
+            <span class="pc-status status-active">Active</span>
+            <h3>Kalman Filter & Variants</h3>
+          </div>
+        </div>
+        <div class="pc-body">
+          <p>From the classical Kalman filter to EKF and UKF for nonlinear systems. Applied to GPS+IMU sensor fusion.</p>
+        </div>
+        <div class="pc-footer">
+          <div class="pc-tags">
+            <span class="tag">Python</span><span class="tag">Sensor Fusion</span><span class="tag">EKF</span>
+          </div>
+          <span class="pc-arrow"><i class="fa fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="project-card" href="projects/trajectory.html">
+        <div class="pc-header">
+          <div class="pc-icon blue"><i class="fa fa-route"></i></div>
+          <div class="pc-meta">
+            <span class="pc-status status-ongoing">Ongoing</span>
+            <h3>Trajectory Planning</h3>
+          </div>
+        </div>
+        <div class="pc-body">
+          <p>Minimum-snap trajectory generation for UAVs and robotic arms. Includes B-spline and polynomial methods with visualization.</p>
+        </div>
+        <div class="pc-footer">
+          <div class="pc-tags">
+            <span class="tag">Python</span><span class="tag">Matplotlib</span><span class="tag">UAV</span>
+          </div>
+          <span class="pc-arrow"><i class="fa fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+      <a class="project-card" href="projects/rl-control.html">
+        <div class="pc-header">
+          <div class="pc-icon green"><i class="fa fa-brain"></i></div>
+          <div class="pc-meta">
+            <span class="pc-status status-new">New</span>
+            <h3>Reinforcement Learning Control</h3>
+          </div>
+        </div>
+        <div class="pc-body">
+          <p>Training RL agents (PPO, SAC) for continuous control tasks. OpenAI Gym environments with custom reward shaping.</p>
+        </div>
+        <div class="pc-footer">
+          <div class="pc-tags">
+            <span class="tag">PyTorch</span><span class="tag">Gym</span><span class="tag">PPO</span>
+          </div>
+          <span class="pc-arrow"><i class="fa fa-arrow-right"></i></span>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ââ CODE PREVIEW ââ -->
+<section id="code-preview">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Code</div>
+      <h2 class="section-title">Clean, Readable Implementations</h2>
+      <p class="section-sub">All algorithms are implemented with clarity in mind â well-commented and mathematically grounded.</p>
+    </div>
+    <div class="code-window">
+      <div class="code-topbar">
+        <div class="dots">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active" onclick="showTab('pid')">pid_controller.py</div>
+          <div class="tab" onclick="showTab('lqr')">lqr.py</div>
+          <div class="tab" onclick="showTab('kalman')">kalman_filter.py</div>
+        </div>
+      </div>
+      <pre class="code-content" id="code-display"></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ââ TEAM ââ -->
+<section id="team">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">Team</div>
+      <h2 class="section-title">Lab Members</h2>
+      <p class="section-sub">Researchers and engineers passionate about control theory and robotics.</p>
+    </div>
+    <div class="team-grid">
+      <div class="member-card">
+        <div class="avatar">PI</div>
+        <h4>Prof. [Name]</h4>
+        <div class="member-role">Principal Investigator</div>
+        <div class="member-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fa fa-envelope"></i></a>
+          <a href="#"><i class="fa fa-globe"></i></a>
+        </div>
+      </div>
+      <div class="member-card">
+        <div class="avatar">P</div>
+        <h4>[PhD Student]</h4>
+        <div class="member-role">Ph.D. Candidate Â· MPC</div>
+        <div class="member-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fa fa-envelope"></i></a>
+        </div>
+      </div>
+      <div class="member-card">
+        <div class="avatar">M</div>
+        <h4>[MS Student]</h4>
+        <div class="member-role">M.S. Student Â· RL Control</div>
+        <div class="member-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fa fa-envelope"></i></a>
+        </div>
+      </div>
+      <div class="member-card">
+        <div class="avatar">U</div>
+        <h4>[UG Researcher]</h4>
+        <div class="member-role">Undergrad Â· Estimation</div>
+        <div class="member-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fa fa-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ââ FOOTER ââ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Motion Control Lab Â· DGIST</div>
+    <p style="margin-top:0.4rem;">
+      <a href="https://github.com/dgist-control" target="_blank">
+        <i class="fab fa-github"></i> github.com/dgist-control
+      </a>
+    </p>
+    <p style="margin-top:1rem; font-size:0.78rem;">
+      Â© 2025 DGIST Motion Control Lab. All code is open-source under the MIT License.
+    </p>
+  </div>
+</footer>
+
+<script>
+const codes = {
+  pid: `<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="cls">PIDController</span>:
+    <span class="str">"""
+    Discrete-time PID controller with anti-windup.
+
+    u(t) = KpÂ·e(t) + KiÂ·â«e dt + KdÂ·Ä(t)
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, Kp, Ki, Kd, dt, u_max=<span class="kw">None</span>):
+        self.Kp, self.Ki, self.Kd = Kp, Ki, Kd
+        self.dt     = dt
+        self.u_max  = u_max        <span class="cmt"># saturation limit</span>
+        self._integral   = <span class="num">0.0</span>
+        self._prev_error = <span class="num">0.0</span>
+
+    <span class="kw">def</span> <span class="fn">compute</span>(self, setpoint, measurement):
+        e  = setpoint - measurement
+        de = (e - self._prev_error) / self.dt
+
+        <span class="cmt"># Integrate with anti-windup clamping</span>
+        self._integral += e * self.dt
+        <span class="kw">if</span> self.u_max:
+            self._integral = np.<span class="fn">clip</span>(
+                self._integral, -self.u_max/self.Ki, self.u_max/self.Ki
+            )
+
+        u = self.Kp*e + self.Ki*self._integral + self.Kd*de
+        self._prev_error = e
+        <span class="kw">return</span> np.<span class="fn">clip</span>(u, -self.u_max, self.u_max) <span class="kw">if</span> self.u_max <span class="kw">else</span> u`,
+
+  lqr: `<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> linalg
+
+<span class="kw">def</span> <span class="fn">lqr</span>(A, B, Q, R):
+    <span class="str">"""
+    Compute the LQR gain K for the continuous-time system:
+        áº = Ax + Bu,   cost J = â«(xáµQx + uáµRu)dt
+
+    Solves the Continuous Algebraic Riccati Equation (CARE):
+        AáµP + PA â PBRâ»Â¹BáµP + Q = 0
+    Returns:  K  such that  u = âKx
+    """</span>
+    <span class="cmt"># Solve CARE using scipy</span>
+    P = linalg.<span class="fn">solve_continuous_are</span>(A, B, Q, R)
+
+    <span class="cmt"># Optimal gain matrix</span>
+    K = np.<span class="fn">linalg.inv</span>(R) @ B.T @ P
+    <span class="kw">return</span> K, P
+
+<span class="cmt"># ââ Example: double integrator ââ</span>
+A = np.<span class="fn">array</span>([[<span class="num">0</span>, <span class="num">1</span>], [<span class="num">0</span>, <span class="num">0</span>]])
+B = np.<span class="fn">array</span>([[<span class="num">0</span>], [<span class="num">1</span>]])
+Q = np.<span class="fn">diag</span>([<span class="num">10</span>, <span class="num">1</span>])   <span class="cmt"># penalise position more</span>
+R = np.<span class="fn">array</span>([[<span class="num">0.1</span>]])
+
+K, P = <span class="fn">lqr</span>(A, B, Q, R)
+<span class="fn">print</span>(<span class="str">f"LQR Gain K = {K}"</span>)`,
+
+  kalman: `<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="cls">KalmanFilter</span>:
+    <span class="str">"""
+    Linear Discrete Kalman Filter.
+    State model:  x[k] = A x[k-1] + B u[k-1] + w,  w ~ N(0,Q)
+    Measurement:  z[k] = H x[k] + v,                v ~ N(0,R)
+    """</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, A, B, H, Q, R, x0, P0):
+        self.A, self.B, self.H = A, B, H
+        self.Q, self.R = Q, R
+        self.x = x0   <span class="cmt"># state estimate</span>
+        self.P = P0   <span class="cmt"># error covariance</span>
+
+    <span class="kw">def</span> <span class="fn">predict</span>(self, u=<span class="num">0</span>):
+        <span class="cmt"># Time update (predict)</span>
+        self.x = self.A @ self.x + self.B * u
+        self.P = self.A @ self.P @ self.A.T + self.Q
+
+    <span class="kw">def</span> <span class="fn">update</span>(self, z):
+        <span class="cmt"># Measurement update (correct)</span>
+        S = self.H @ self.P @ self.H.T + self.R
+        K = self.P @ self.H.T @ np.<span class="fn">linalg.inv</span>(S)   <span class="cmt"># Kalman gain</span>
+        self.x = self.x + K @ (z - self.H @ self.x)
+        I = np.<span class="fn">eye</span>(len(self.x))
+        self.P = (I - K @ self.H) @ self.P
+        <span class="kw">return</span> self.x.copy()`
+};
+
+function showTab(name) {
+  document.getElementById('code-display').innerHTML = codes[name];
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+// Default
+document.getElementById('code-display').innerHTML = codes['pid'];
+</script>
+
+</body>
+</html>
